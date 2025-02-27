@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h> // Include OpenMP header
+
+int mutex = 1;
+int full = 0;
+int empty = 10, x = 0;
+
+void producer() {
+    #pragma omp critical
+    {
+        if (empty > 0) { // Check if there's space before producing
+            --empty;
+            ++full;
+            x++;
+            printf("\nProducer produces item %d", x);
+        } else {
+            printf("\nBuffer is full! Producer cannot produce.");
+        }
+    }
+}
+
+void consumer() {
+    #pragma omp critical
+    {
+        if (full > 0) { // Check if there are items to consume
+            --full;
+            ++empty;
+            printf("\nConsumer consumes item %d", x);
+            x--;
+        } else {
+            printf("\nBuffer is empty! Consumer cannot consume.");
+        }
+    }
+}
+
+int main() {
+    int n, i;
+    printf("\n1. Press 1 for Producer"
+           "\n2. Press 2 for Consumer"
+           "\n3. Press 3 for Exit");
+
+    for (i = 1; ; i++) { // Infinite loop
+        printf("\nEnter your choice:");
+        scanf("%d", &n);
+        switch (n) {
+            case 1:
+                producer();
+                break;
+            case 2:
+                consumer();
+                break;
+            case 3:
+                exit(0);
+                break;
+            default:
+                printf("\nInvalid choice.");
+        }
+    }
+    return 0;
+}
